@@ -1,0 +1,504 @@
+/* SISFO SMK Bina Mandiri - Admin Style */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --sidebar-width: 260px;
+    --header-height: 60px;
+}
+
+/* Reset & Basic Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+}
+
+.sidebar-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.sidebar-nav li {
+    margin-bottom: 2px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    border-left-color: var(--primary-color);
+}
+
+.sidebar-nav a i {
+    width: 20px;
+    margin-right: 10px;
+    text-align: center;
+}
+
+.submenu {
+    list-style: none;
+    padding-left: 0;
+    background-color: rgba(0,0,0,0.1);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.submenu.show {
+    max-height: 500px;
+}
+
+.submenu a {
+    padding: 10px 20px 10px 50px;
+    font-size: 0.9rem;
+    border-left: none;
+}
+
+.submenu a:hover,
+.submenu a.active {
+    background-color: rgba(255,255,255,0.05);
+    padding-left: 52px;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Header */
+.header {
+    background: white;
+    height: var(--header-height);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+}
+
+/* Breadcrumb */
+.breadcrumb-custom {
+    background: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-custom a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb-custom a:hover {
+    text-decoration: underline;
+}
+
+/* User Dropdown */
+.user-dropdown {
+    position: relative;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.user-info:hover {
+    background-color: #f8f9fa;
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    padding: 20px;
+    min-height: calc(100vh - var(--header-height));
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 15px 20px;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+.card-title {
+    margin: 0;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Info Boxes */
+.info-box {
+    display: block;
+    min-height: 90px;
+    background: #fff;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.info-box-icon {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    display: block;
+    float: left;
+    height: 90px;
+    width: 90px;
+    text-align: center;
+    font-size: 45px;
+    line-height: 90px;
+    background: rgba(0,0,0,0.2);
+    color: rgba(255,255,255,0.9);
+}
+
+.info-box-content {
+    padding: 10px 15px;
+    margin-left: 90px;
+}
+
+.info-box-text {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 12px;
+    color: #fff;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.info-box-number {
+    display: block;
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+}
+
+/* Color Variants */
+.bg-primary .info-box-text,
+.bg-primary .info-box-number { color: #fff; }
+
+.bg-success .info-box-text,
+.bg-success .info-box-number { color: #fff; }
+
+.bg-warning .info-box-text,
+.bg-warning .info-box-number { color: #fff; }
+
+.bg-info .info-box-text,
+.bg-info .info-box-number { color: #fff; }
+
+/* Buttons */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+}
+
+/* Forms */
+.form-control,
+.form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Tables - Force Black Text Color */
+.table {
+    margin-bottom: 0;
+    color: #000000 !important;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    color: #000000 !important;
+}
+
+.table td {
+    color: #000000 !important;
+}
+
+.table tbody tr {
+    color: #000000 !important;
+}
+
+.table tbody tr td {
+    color: #000000 !important;
+}
+
+.table thead tr th {
+    color: #000000 !important;
+}
+
+.table tfoot tr td {
+    color: #000000 !important;
+}
+
+/* Bootstrap table overrides */
+.table-primary, .table-secondary, .table-success, .table-danger, 
+.table-warning, .table-info, .table-light, .table-dark {
+    color: #000000 !important;
+}
+
+.table-primary td, .table-secondary td, .table-success td, .table-danger td,
+.table-warning td, .table-info td, .table-light td, .table-dark td {
+    color: #000000 !important;
+}
+
+/* Ensure DataTables also use black text */
+.dataTables_wrapper .table {
+    color: #000000 !important;
+}
+
+.dataTables_wrapper .table thead th {
+    color: #000000 !important;
+}
+
+.dataTables_wrapper .table tbody td {
+    color: #000000 !important;
+}
+
+.dataTables_wrapper .table tfoot td {
+    color: #000000 !important;
+}
+
+/* DataTables specific elements */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+    color: #000000 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #000000 !important;
+}
+
+/* Override any Bootstrap text colors in tables */
+.table .text-primary, .table .text-secondary, .table .text-success,
+.table .text-danger, .table .text-warning, .table .text-info,
+.table .text-light, .table .text-dark, .table .text-muted {
+    color: #000000 !important;
+}
+
+/* Universal table override - most specific */
+table, table *, 
+table tr, table tr *,
+table td, table td *,
+table th, table th *,
+table thead, table thead *,
+table tbody, table tbody *,
+table tfoot, table tfoot * {
+    color: #000000 !important;
+}
+
+/* Additional Bootstrap overrides */
+.table-striped tbody tr:nth-of-type(odd) td,
+.table-striped tbody tr:nth-of-type(even) td {
+    color: #000000 !important;
+}
+
+.table-hover tbody tr:hover td {
+    color: #000000 !important;
+}
+
+/* Card table overrides */
+.card .table td,
+.card .table th {
+    color: #000000 !important;
+}
+
+/* Alerts */
+.alert {
+    border: none;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .content-wrapper {
+        padding: 15px;
+    }
+    
+    .user-details {
+        display: none !important;
+    }
+}
+
+/* Animation for auto-dismiss alerts */
+.alert[data-auto-dismiss] {
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* FORCE BLACK TEXT IN ALL TABLES - HIGHEST PRIORITY */
+table[class*="table"], 
+table[class*="datatable"],
+.table, .datatable,
+[class*="table"] table {
+    color: #000000 !important;
+}
+
+table[class*="table"] td,
+table[class*="table"] th,
+table[class*="datatable"] td,
+table[class*="datatable"] th,
+.table td, .table th,
+.datatable td, .datatable th,
+[class*="table"] table td,
+[class*="table"] table th {
+    color: #000000 !important;
+}
+
+/* Absolute override for any conflicting styles */
+* table, * table *,
+* .table, * .table *,
+* .datatable, * .datatable * {
+    color: #000000 !important;
+}
