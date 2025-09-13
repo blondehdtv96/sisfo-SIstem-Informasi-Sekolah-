@@ -207,7 +207,7 @@ class Dashboard_model extends CI_Model {
             
             foreach ($gender_data as $item) {
                 $data['gender']['labels'][] = $item->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan';
-                $data['gender']['data'][] = $item->total;
+                $data['gender']['data'][] = (int)$item->total;
             }
             
             // If no gender data, provide default
@@ -233,7 +233,7 @@ class Dashboard_model extends CI_Model {
             foreach ($major_data as $item) {
                 if ($item->nama_jurusan) {
                     $data['major']['labels'][] = $item->nama_jurusan;
-                    $data['major']['data'][] = $item->total;
+                    $data['major']['data'][] = (int)$item->total;
                 }
             }
             
@@ -242,6 +242,9 @@ class Dashboard_model extends CI_Model {
                 $data['major']['labels'] = ['Teknik Komputer Jaringan'];
                 $data['major']['data'] = [0];
             }
+            
+            // Debug log
+            log_message('debug', 'Dashboard chart data: ' . json_encode($data));
             
         } catch (Exception $e) {
             // Log error and return default values

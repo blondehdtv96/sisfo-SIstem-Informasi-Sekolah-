@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test Dropdown Functionality - SISFO SMK Bina Mandiri</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom Admin CSS -->
+    <link href="assets/css/admin-style.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-header {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        /* Mobile test simulation */
+        .mobile-test .sidebar-toggle {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+        
+        .mobile-test::before {
+            content: "Mobile Mode Active";
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Test Dropdown Functionality</h1>
+        
+        <!-- User Dropdown Test -->
+        <div class="test-section">
+            <h3 class="test-header">User Dropdown Test</h3>
+            <div class="dropdown user-dropdown">
+                <div class="user-info" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="assets/img/default-avatar.svg" alt="User" class="user-avatar" style="width: 35px; height: 35px; border-radius: 50%;">
+                    <div class="user-details">
+                        <span class="user-name">Test User</span>
+                        <small class="user-role d-block text-muted">Administrator</small>
+                    </div>
+                    <i class="fas fa-chevron-down ms-2"></i>
+                </div>
+                
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header">Akun Saya</h6></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2"></i>Ubah Password</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Sidebar Menu Test -->
+        <div class="test-section">
+            <h3 class="test-header">Sidebar Menu Collapse Test</h3>
+            <div style="max-width: 300px;">
+                <ul class="sidebar-nav" style="list-style: none; padding: 0; background: #2c3e50; border-radius: 8px;">
+                    <li>
+                        <a href="#" data-bs-toggle="collapse" data-bs-target="#submenu-master-data" style="display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none;" role="button" aria-expanded="false">
+                            <i class="fas fa-database" style="width: 20px; margin-right: 10px;"></i>
+                            <span>Master Data</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <ul class="submenu collapse" id="submenu-master-data" style="list-style: none; padding-left: 0; background-color: rgba(0,0,0,0.1);">
+                            <li><a href="#" style="display: block; padding: 10px 20px 10px 50px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;"><i class="fas fa-book"></i> Mata Pelajaran</a></li>
+                            <li><a href="#" style="display: block; padding: 10px 20px 10px 50px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;"><i class="fas fa-layer-group"></i> Tingkatan Kelas</a></li>
+                            <li><a href="#" style="display: block; padding: 10px 20px 10px 50px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;"><i class="fas fa-graduation-cap"></i> Jurusan</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" data-bs-toggle="collapse" data-bs-target="#submenu-manajemen" style="display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none;" role="button" aria-expanded="false">
+                            <i class="fas fa-folder-open" style="width: 20px; margin-right: 10px;"></i>
+                            <span>Manajemen Data</span>
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <ul class="submenu collapse" id="submenu-manajemen" style="list-style: none; padding-left: 0; background-color: rgba(0,0,0,0.1);">
+                            <li><a href="#" style="display: block; padding: 10px 20px 10px 50px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;"><i class="fas fa-user-graduate"></i> Data Siswa</a></li>
+                            <li><a href="#" style="display: block; padding: 10px 20px 10px 50px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;"><i class="fas fa-chalkboard-teacher"></i> Data Guru</a></li>
+                            <li><a href="#" style="display: block; padding: 10px 20px 10px 50px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;"><i class="fas fa-user-tie"></i> Data Wali Kelas</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Standard Bootstrap Dropdown Test -->
+        <div class="test-section">
+            <h3 class="test-header">Standard Bootstrap Dropdown Test</h3>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Dropdown Button
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Action</a></li>
+                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Form Select Test -->
+        <div class="test-section">
+            <h3 class="test-header">Form Select Test</h3>
+            <select class="form-select" style="max-width: 300px;">
+                <option selected>Pilih opsi...</option>
+                <option value="1">Opsi 1</option>
+                <option value="2">Opsi 2</option>
+                <option value="3">Opsi 3</option>
+            </select>
+        </div>
+        
+        <!-- Navbar Toggle Test -->
+        <div class="test-section">
+            <h3 class="test-header">Navbar/Sidebar Toggle Test</h3>
+            <p class="mb-3">Test the sidebar toggle functionality (hamburger menu):</p>
+            
+            <!-- Simulated header with sidebar toggle -->
+            <div style="background: white; padding: 10px 20px; border: 1px solid #ddd; border-radius: 8px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                <button class="sidebar-toggle" type="button" style="background: none; border: none; font-size: 1.2rem; color: #6c757d; cursor: pointer; padding: 8px; border-radius: 4px; transition: all 0.3s ease;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span>Click the hamburger menu to test sidebar toggle</span>
+            </div>
+            
+            <!-- Simulated sidebar -->
+            <div class="sidebar" id="test-sidebar" style="position: relative; width: 300px; height: 200px; background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 8px; padding: 20px; transition: all 0.3s ease;">
+                <h6>Test Sidebar</h6>
+                <p class="mb-0">This sidebar should toggle when you click the hamburger menu above.</p>
+                <small class="text-muted">Current state: <span id="sidebar-state">Visible</span></small>
+            </div>
+            
+            <!-- Test controls -->
+            <div class="mt-3">
+                <button id="test-mobile" class="btn btn-secondary btn-sm">Simulate Mobile View</button>
+                <button id="test-desktop" class="btn btn-secondary btn-sm">Simulate Desktop View</button>
+                <button id="reset-test" class="btn btn-warning btn-sm">Reset Test</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/admin-script.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            console.log('Test page loaded');
+            
+            // Initialize Bootstrap 5 components
+            if (typeof bootstrap !== 'undefined') {
+                console.log('Bootstrap 5 available');
+                
+                // Initialize all dropdowns
+                const dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+                const dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                    return new bootstrap.Dropdown(dropdownToggleEl);
+                });
+                console.log('Dropdowns initialized:', dropdownList.length);
+                
+                // Initialize all collapses
+                const collapseElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="collapse"]'));
+                const collapseList = collapseElementList.map(function (collapseToggleEl) {
+                    return new bootstrap.Collapse(collapseToggleEl, {
+                        toggle: false
+                    });
+                });
+                console.log('Collapses initialized:', collapseList.length);
+            } else {
+                console.error('Bootstrap 5 not available');
+            }
+            
+            // Test click events
+            $('[data-bs-toggle="dropdown"]').click(function() {
+                console.log('Dropdown clicked');
+            });
+            
+            $('[data-bs-toggle="collapse"]').click(function() {
+                console.log('Collapse clicked');
+            });
+            
+            // Test navbar toggle functionality
+            let isHidden = false;
+            $('.sidebar-toggle').click(function(e) {
+                e.preventDefault();
+                console.log('Navbar toggle clicked');
+                
+                const testSidebar = $('#test-sidebar');
+                const sidebarState = $('#sidebar-state');
+                
+                if (isHidden) {
+                    testSidebar.show().css('opacity', '1');
+                    sidebarState.text('Visible');
+                    isHidden = false;
+                    console.log('Sidebar shown');
+                } else {
+                    testSidebar.css('opacity', '0.3');
+                    sidebarState.text('Hidden/Collapsed');
+                    isHidden = true;
+                    console.log('Sidebar hidden');
+                }
+            });
+            
+            // Test controls
+            $('#test-mobile').click(function() {
+                $('body').addClass('mobile-test');
+                console.log('Mobile view simulated');
+                alert('Mobile view simulated. Try the hamburger menu now.');
+            });
+            
+            $('#test-desktop').click(function() {
+                $('body').removeClass('mobile-test');
+                console.log('Desktop view simulated');
+                alert('Desktop view simulated. Try the hamburger menu now.');
+            });
+            
+            $('#reset-test').click(function() {
+                const testSidebar = $('#test-sidebar');
+                const sidebarState = $('#sidebar-state');
+                testSidebar.show().css('opacity', '1');
+                sidebarState.text('Visible');
+                isHidden = false;
+                $('body').removeClass('mobile-test');
+                console.log('Test reset');
+            });
+        });
+    </script>
+</body>
+</html>

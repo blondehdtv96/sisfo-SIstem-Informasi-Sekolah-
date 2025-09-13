@@ -1,6 +1,8 @@
 // Admin Panel JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize sidebar toggle
+    console.log('Admin script loading...');
+    
+    // Initialize sidebar toggle first
     initSidebarToggle();
     
     // Initialize dropdowns
@@ -17,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize alerts auto-hide
     initAlerts();
+    
+    console.log('Admin script initialization complete');
 });
 
 // Sidebar Toggle Functionality
@@ -25,27 +29,141 @@ function initSidebarToggle() {
     const mainContent = document.querySelector('.main-content');
     const toggleBtn = document.querySelector('.sidebar-toggle');
     
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', function() {
+    if (!toggleBtn || !sidebar || !mainContent) {
+        console.warn('Sidebar elements not found');
+        return;
+    }
+    
+    // Create overlay for mobile
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    // Toggle function
+    function toggleSidebar() {
+        const isMobile = window.innerWidth <= 768;
+        console.log('Toggle sidebar called - isMobile:', isMobile);
+        
+        if (isMobile) {
+            // Mobile behavior
+            const isVisible = sidebar.classList.contains('show');
+            console.log('Mobile mode - sidebar currently visible:', isVisible);
+            if (isVisible) {
+                hideMobileSidebar();
+            } else {
+                showMobileSidebar();
+            }
+        } else {
+            // Desktop behavior
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            console.log('Desktop mode - sidebar currently collapsed:', isCollapsed);
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
             
             // Save state to localStorage
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebar-collapsed', isCollapsed);
-        });
+            const newCollapsedState = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebar-collapsed', newCollapsedState);
+            console.log('Desktop sidebar toggled - new collapsed state:', newCollapsedState);
+        }
     }
     
-    // Restore sidebar state
-    const savedState = localStorage.getItem('sidebar-collapsed');
-    if (savedState === 'true') {
-        sidebar.classList.add('collapsed');
-        mainContent.classList.add('expanded');
+    // Show mobile sidebar
+    function showMobileSidebar() {
+        console.log('Showing mobile sidebar');
+        sidebar.classList.add('show');
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
     }
     
-    // Handle submenu toggles
-    const menuItems = document.querySelectorAll('.sidebar-nav a[data-toggle="submenu"]');
+    // Hide mobile sidebar
+    function hideMobileSidebar() {
+        console.log('Hiding mobile sidebar');
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    
+    // Add click event to toggle button
+    toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Sidebar toggle clicked - Window width:', window.innerWidth);
+        toggleSidebar();
+    });
+    
+    // Close sidebar when clicking overlay
+    overlay.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+            hideMobileSidebar();
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (!isMobile) {
+            // Desktop mode - hide mobile sidebar and overlay
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+            
+            // Restore desktop state
+            const savedState = localStorage.getItem('sidebar-collapsed');
+            if (savedState === 'true') {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            }
+        } else {
+            // Mobile mode - ensure proper mobile state
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('expanded');
+        }
+    });
+    
+    // Restore sidebar state on load (desktop only)
+    if (window.innerWidth > 768) {
+        const savedState = localStorage.getItem('sidebar-collapsed');
+        if (savedState === 'true') {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+    }
+    
+    // Handle submenu toggles - Updated for Bootstrap 5 collapse
+    const menuItems = document.querySelectorAll('.sidebar-nav a[data-bs-toggle="collapse"]');
     menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Initialize Bootstrap collapse if available
+            if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                const targetId = this.getAttribute('data-bs-target');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(targetElement);
+                    bsCollapse.toggle();
+                }
+            }
+            
+            // Handle icon rotation
+            const icon = this.querySelector('i.fa-chevron-down, i.fa-chevron-right');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-right');
+            }
+        });
+    });
+    
+    // Fallback for old data-toggle submenu items
+    const oldMenuItems = document.querySelectorAll('.sidebar-nav a[data-toggle="submenu"]');
+    oldMenuItems.forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
             const submenu = this.nextElementSibling;
@@ -63,26 +181,67 @@ function initSidebarToggle() {
 
 // Dropdown Functionality
 function initDropdowns() {
-    const dropdownToggles = document.querySelectorAll('[data-toggle="dropdown"]');
+    console.log('Initializing dropdowns...');
     
-    dropdownToggles.forEach(toggle => {
+    // Initialize Bootstrap 5 dropdowns
+    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+        const dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+        const dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+            console.log('Initializing dropdown:', dropdownToggleEl);
+            return new bootstrap.Dropdown(dropdownToggleEl, {
+                autoClose: true,
+                boundary: 'viewport'
+            });
+        });
+        console.log('Bootstrap 5 dropdowns initialized:', dropdownList.length);
+    } else {
+        console.warn('Bootstrap 5 not available for dropdowns');
+    }
+    
+    // Enhanced fallback for custom dropdown functionality
+    const customDropdownToggles = document.querySelectorAll('[data-toggle="dropdown"]:not([data-bs-toggle])');
+    
+    customDropdownToggles.forEach(toggle => {
         toggle.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                if (menu !== this.nextElementSibling) {
+                    menu.classList.remove('show');
+                }
+            });
+            
             const dropdown = this.nextElementSibling;
-            if (dropdown) {
+            if (dropdown && dropdown.classList.contains('dropdown-menu')) {
                 dropdown.classList.toggle('show');
             }
         });
     });
     
-    // Close dropdowns when clicking outside
+    // Enhanced click outside handler
     document.addEventListener('click', function(e) {
-        if (!e.target.matches('[data-toggle="dropdown"]')) {
-            const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-            dropdowns.forEach(dropdown => {
-                dropdown.classList.remove('show');
-            });
+        // Skip if clicking on dropdown toggle or within dropdown
+        if (e.target.matches('[data-toggle="dropdown"]') || 
+            e.target.matches('[data-bs-toggle="dropdown"]') ||
+            e.target.closest('.dropdown-menu') ||
+            e.target.closest('[data-bs-toggle="dropdown"]')) {
+            return;
         }
+        
+        // Close all custom dropdowns (not Bootstrap managed ones)
+        const customDropdowns = document.querySelectorAll('.dropdown-menu.show:not([data-bs-popper])');
+        customDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+    });
+    
+    // Prevent dropdown menu from closing when clicking inside
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
     });
 }
 
@@ -298,80 +457,36 @@ const AdminUtils = {
 // Export for use in other scripts
 window.AdminUtils = AdminUtils;
 
-// Handle responsive sidebar for mobile
-function handleMobileSidebar() {
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        display: none;
-    `;
-    
-    document.body.appendChild(overlay);
-    
-    // Show sidebar on mobile
-    function showMobileSidebar() {
-        if (window.innerWidth <= 768) {
-            sidebar.classList.add('show');
-            overlay.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-    }
-    
-    // Hide sidebar on mobile
-    function hideMobileSidebar() {
-        sidebar.classList.remove('show');
-        overlay.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-    
-    // Toggle sidebar on mobile
-    const mobileToggle = document.querySelector('.sidebar-toggle');
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', function() {
-            if (window.innerWidth <= 768) {
-                if (sidebar.classList.contains('show')) {
-                    hideMobileSidebar();
-                } else {
-                    showMobileSidebar();
-                }
-            }
-        });
-    }
-    
-    // Close sidebar when clicking overlay
-    overlay.addEventListener('click', hideMobileSidebar);
-    
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            hideMobileSidebar();
-            sidebar.classList.remove('collapsed');
-        }
-    });
-}
-
-// Initialize mobile sidebar handling
-handleMobileSidebar();
+// Note: Mobile sidebar handling is now integrated into initSidebarToggle function
 
 /**
  * SISFO SMK Bina Mandiri - Admin Script
  */
 $(document).ready(function() {
-    // Sidebar toggle functionality
-    $('#sidebar-toggle').click(function() {
-        $('#sidebar').toggleClass('show');
-        $('#main-content').toggleClass('sidebar-collapsed');
+    // Sidebar toggle functionality - Updated to work with new system
+    $('#sidebar-toggle').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Let the vanilla JS handler take care of this
     });
 
-    // Submenu toggle
+    // Submenu toggle - Updated for Bootstrap 5
+    $('[data-bs-toggle="collapse"]').click(function(e) {
+        e.preventDefault();
+        const targetId = $(this).attr('data-bs-target');
+        const targetElement = $(targetId);
+        const icon = $(this).find('.fa-chevron-right');
+        
+        // Close other submenus
+        $('.submenu.collapse').not(targetElement).removeClass('show');
+        $('.fa-chevron-right').not(icon).removeClass('fa-rotate-90');
+        
+        // Toggle current submenu
+        targetElement.toggleClass('show');
+        icon.toggleClass('fa-rotate-90');
+    });
+    
+    // Fallback for old submenu toggle
     $('[data-toggle="submenu"]').click(function(e) {
         e.preventDefault();
         const submenu = $(this).next('.submenu');
@@ -386,15 +501,34 @@ $(document).ready(function() {
         icon.toggleClass('fa-rotate-90');
     });
 
-    // User dropdown
-    $('.user-info').click(function() {
-        $(this).next('.dropdown-menu').toggle();
+    // User dropdown - Updated for Bootstrap 5 with better debugging
+    $('.user-info[data-bs-toggle="dropdown"]').off('click').on('click', function(e) {
+        console.log('User dropdown clicked (Bootstrap 5):', this);
+        // Let Bootstrap handle this, but add some debugging
+        e.stopPropagation();
+    });
+    
+    // Fallback for old user dropdown with debugging
+    $('.user-info:not([data-bs-toggle])').off('click').on('click', function(e) {
+        console.log('User dropdown clicked (fallback):', this);
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Close other dropdowns
+        $('.dropdown-menu').not($(this).next()).removeClass('show').hide();
+        
+        // Toggle current dropdown
+        const menu = $(this).next('.dropdown-menu');
+        if (menu.length) {
+            menu.toggleClass('show').toggle();
+            console.log('Dropdown menu toggled:', menu.hasClass('show'));
+        }
     });
 
-    // Close dropdown when clicking outside
+    // Close dropdown when clicking outside - Updated for Bootstrap 5
     $(document).click(function(e) {
-        if (!$(e.target).closest('.user-dropdown').length) {
-            $('.dropdown-menu').hide();
+        if (!$(e.target).closest('.user-dropdown').length && !$(e.target).closest('[data-bs-toggle="dropdown"]').length) {
+            $('.dropdown-menu:not(.show)').hide(); // Only hide non-Bootstrap dropdowns
         }
     });
 

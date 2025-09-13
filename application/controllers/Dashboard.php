@@ -34,6 +34,10 @@ class Dashboard extends CI_Controller {
                 $data['stats'] = $this->Dashboard_model->get_admin_stats();
                 $data['recent_activities'] = $this->Dashboard_model->get_recent_activities();
                 $data['chart_data'] = $this->Dashboard_model->get_chart_data();
+                
+                // Debug: Log chart data
+                log_message('debug', 'Chart data: ' . json_encode($data['chart_data']));
+                
                 $content = $this->load->view('dashboard/admin', $data, TRUE);
             } catch (Exception $e) {
                 log_message('error', 'Dashboard::index() Admin - ' . $e->getMessage());

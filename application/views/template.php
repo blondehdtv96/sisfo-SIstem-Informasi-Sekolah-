@@ -42,45 +42,26 @@
         <ul class="nav navbar-nav">
 
           <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="<?php echo base_url(); ?>assets/dist/img/user2-160x160.jpg" class="user-image" alt="User Image">
+            <button class="btn dropdown-toggle user-dropdown-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; color: inherit; padding: 10px 15px; display: flex; align-items: center;">
+              <img src="<?php echo base_url(); ?>assets/dist/img/user2-160x160.jpg" class="user-image" alt="User Image" style="width: 25px; height: 25px; border-radius: 50%; margin-right: 8px;">
               <span class="hidden-xs"><?php echo $this->session->userdata('nama_lengkap'); ?></span>
-            </a>
-            <ul class="dropdown-menu">
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
               <!-- User image -->
-              <li class="user-header">
-                <img src="<?php echo base_url(); ?>assets/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+              <li class="user-header text-center p-3">
+                <img src="<?php echo base_url(); ?>assets/dist/img/user2-160x160.jpg" class="rounded-circle" alt="User Image" style="width: 60px; height: 60px;">
 
-                <p>
+                <p class="mt-2 mb-1">
                   <?php echo $this->session->userdata('nama_lengkap'); ?>
-                  <small>Member since Nov. 2012</small>
+                  <small class="d-block text-muted">Member since Nov. 2012</small>
                 </p>
               </li>
-              <!-- Menu Body -->
-              <!-- <li class="user-body">
-                <div class="row">
-                  <div class="col-xs-4 text-center">
-                    <a href="#">Followers</a>
-                  </div>
-                  <div class="col-xs-4 text-center">
-                    <a href="#">Sales</a>
-                  </div>
-                  <div class="col-xs-4 text-center">
-                    <a href="#">Friends</a>
-                  </div>
-                </div>
-              </li> -->
               <!-- Menu Footer-->
-              <li class="user-footer">
-                <!--<div class="pull-left">
-                  <a href="#" class="btn btn-default btn-flat">Profile</a>
-                </div> -->
-                <div class="text-center">
-
+              <li class="user-footer text-center p-3">
+                <div>
                   <?php
-                    echo anchor('auth/logout', '<button class="btn btn-danger btn-flat">Sign Out</button>');
+                    echo anchor('auth/logout', '<button class="btn btn-danger btn-sm">Sign Out</button>');
                   ?>
- 
                 </div>
               </li>
             </ul>
@@ -429,26 +410,37 @@
 <!-- ./wrapper -->
 
 <!-- jQuery 3 -->
-<!-- <script src="<?php echo base_url(); ?>assets/bower_components/jquery/dist/jquery.min.js"></script> -->
-<!-- Bootstrap 3.3.7 -->
-<script src="<?php echo base_url(); ?>assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- FastClick -->
-<script src="<?php echo base_url(); ?>assets/bower_components/fastclick/lib/fastclick.js"></script>
-<!-- AdminLTE App -->
-<script src="<?php echo base_url(); ?>assets/dist/js/adminlte.min.js"></script>
-<!-- Sparkline -->
-<script src="<?php echo base_url(); ?>assets/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
-<!-- jvectormap  -->
-<script src="<?php echo base_url(); ?>assets/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-<script src="<?php echo base_url(); ?>assets/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-<!-- SlimScroll -->
-<script src="<?php echo base_url(); ?>assets/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-<!-- ChartJS -->
-<script src="<?php echo base_url(); ?>assets/bower_components/Chart.js/Chart.js"></script>
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<!-- <script src="<?php echo base_url(); ?>assets/dist/js/pages/dashboard2.js"></script> -->
-<!-- AdminLTE for demo purposes -->
-<script src="<?php echo base_url(); ?>assets/dist/js/demo.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<!-- Custom Admin JS -->
+<script src="<?php echo base_url('assets/js/admin-script.js'); ?>"></script>
+
+<!-- Template specific initialization -->
+<script>
+$(document).ready(function() {
+    console.log('Template.php loaded - initializing Bootstrap 5 components');
+    
+    // Force Bootstrap 5 dropdown initialization
+    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+        const dropdownElements = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+        console.log('Found dropdown elements:', dropdownElements.length);
+        
+        dropdownElements.forEach(function(element) {
+            new bootstrap.Dropdown(element, {
+                autoClose: true,
+                boundary: 'viewport'
+            });
+            console.log('Initialized dropdown for:', element);
+        });
+    } else {
+        console.error('Bootstrap 5 not available!');
+    }
+});
+</script>
 
 </body>
 </html>
