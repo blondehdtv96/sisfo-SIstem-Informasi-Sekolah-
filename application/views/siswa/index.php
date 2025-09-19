@@ -69,66 +69,57 @@
             </div>
         <?php endif; ?>
 
-        <!-- Filter Section -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title mb-0 text-dark">
-                    <i class="fas fa-filter me-2"></i>
-                    Filter Data Siswa
-                </h5>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
+        <!-- Filter Section - Only for Admin -->
+        <?php if ($this->session->userdata('id_level_user') == 1 && isset($kelas_list)): ?>
+        <div class="bg-light rounded p-2 mb-3 border">
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <small class="text-muted fw-medium">
+                        <i class="fas fa-filter me-1"></i>Filter:
+                    </small>
                 </div>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label text-dark">Kelas</label>
-                        <select id="filter_kelas" class="form-select">
-                            <option value="">Semua Kelas</option>
-                            <?php foreach ($kelas_list as $kelas): ?>
-                                <option value="<?php echo $kelas->id_kelas; ?>">
-                                    <?php echo $kelas->nama_kelas; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-dark">Jurusan</label>
-                        <select id="filter_jurusan" class="form-select">
-                            <option value="">Semua Jurusan</option>
-                            <?php foreach ($jurusan_list as $jurusan): ?>
-                                <option value="<?php echo $jurusan->id_jurusan; ?>">
-                                    <?php echo $jurusan->nama_jurusan; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-dark">Status</label>
-                        <select id="filter_status" class="form-select">
-                            <option value="">Semua Status</option>
-                            <option value="aktif">Aktif</option>
-                            <option value="lulus">Lulus</option>
-                            <option value="pindah">Pindah</option>
-                            <option value="keluar">Keluar</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <div class="btn-group w-100" role="group">
-                            <button type="button" id="btn_filter" class="btn btn-primary">
-                                <i class="fas fa-search"></i> Filter
-                            </button>
-                            <button type="button" id="btn_reset" class="btn btn-outline-secondary">
-                                <i class="fas fa-undo"></i> Reset
-                            </button>
-                        </div>
+                <div class="col-md-2 col-sm-6">
+                    <select id="filter_kelas" class="form-select form-select-sm">
+                        <option value="">Semua Kelas</option>
+                        <?php foreach ($kelas_list as $kelas): ?>
+                            <option value="<?php echo $kelas->nama_kelas; ?>">
+                                <?php echo $kelas->nama_kelas; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <select id="filter_jurusan" class="form-select form-select-sm">
+                        <option value="">Semua Jurusan</option>
+                        <?php foreach ($jurusan_list as $jurusan): ?>
+                            <option value="<?php echo $jurusan->nama_jurusan; ?>">
+                                <?php echo $jurusan->nama_jurusan; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <select id="filter_status" class="form-select form-select-sm">
+                        <option value="">Semua Status</option>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Lulus">Lulus</option>
+                        <option value="Pindah">Pindah</option>
+                        <option value="Keluar">Keluar</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <div class="btn-group" role="group">
+                        <button type="button" id="btn_filter" class="btn btn-primary btn-sm" title="Terapkan Filter">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button type="button" id="btn_reset" class="btn btn-outline-secondary btn-sm" title="Reset Filter">
+                            <i class="fas fa-undo"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- Main content -->
         <div class="card shadow-sm">
@@ -302,22 +293,89 @@ $(document).ready(function() {
         ]
     });
 
-    // Filter functionality
-    $('#btn_filter').click(function() {
+    // Filter functionality for admin
+    function applyFilter() {
         var kelas = $('#filter_kelas').val();
         var jurusan = $('#filter_jurusan').val();
         var status = $('#filter_status').val();
         
-        // Apply filters
-        table.columns(4).search(kelas ? kelas : '');
-        table.columns(6).search(status ? status : '');
-        table.draw();
+        // Show loading
+        Swal.fire({
+            title: 'Memfilter data...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Send AJAX request for server-side filtering
+        $.ajax({
+            url: '<?php echo site_url("siswa/filter_data"); ?>',
+            type: 'POST',
+            data: {
+                kelas: kelas,
+                jurusan: jurusan,
+                status: status
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Clear and reload table with filtered data
+                    table.clear();
+                    table.rows.add(response.data);
+                    table.draw();
+                    
+                    // Show filter info
+                    var activeFilters = [];
+                    if (kelas) activeFilters.push('Kelas: ' + kelas);
+                    if (jurusan) activeFilters.push('Jurusan: ' + jurusan);
+                    if (status) activeFilters.push('Status: ' + status);
+                    
+                    Swal.close();
+                    
+                    if (activeFilters.length > 0) {
+                        toastr.success('Filter diterapkan: ' + activeFilters.join(', '), 'Filter Aktif');
+                    } else {
+                        toastr.info('Menampilkan semua data siswa', 'Filter');
+                    }
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: response.message || 'Terjadi kesalahan saat memfilter data.',
+                        icon: 'error'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Filter error:', xhr.responseText);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan saat memfilter data.',
+                    icon: 'error'
+                });
+            }
+        });
+    }
+
+    // Filter button click
+    $('#btn_filter').click(function() {
+        applyFilter();
     });
 
+    // Reset filter
     $('#btn_reset').click(function() {
         $('#filter_kelas, #filter_jurusan, #filter_status').val('');
-        table.search('').columns().search('').draw();
+        // Reload page to show all data
+        location.reload();
     });
+
+    // Apply filter on Enter key
+    $('#filter_kelas, #filter_jurusan, #filter_status').keypress(function(e) {
+        if (e.which == 13) { // Enter key
+            applyFilter();
+        }
+    });
+
 });
 
 function deleteSiswa(id, nama) {
@@ -332,17 +390,49 @@ function deleteSiswa(id, nama) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
+            // Show loading
+            Swal.fire({
+                title: 'Menghapus data...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
             $.ajax({
                 url: '<?php echo site_url("siswa/delete/"); ?>' + id,
                 type: 'POST',
                 dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
+                timeout: 10000, // 10 second timeout
+                success: function(response, textStatus, xhr) {
+                    console.log('Delete response details:', {
+                        response: response,
+                        textStatus: textStatus,
+                        status: xhr.status,
+                        responseText: xhr.responseText
+                    });
+                    
+                    // Check if response is valid
+                    if (typeof response === 'string') {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            console.log('Failed to parse response as JSON:', e);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Server mengembalikan response yang tidak valid.',
+                                icon: 'error'
+                            });
+                            return;
+                        }
+                    }
+                    
+                    if (response && response.success === true) {
                         Swal.fire({
                             title: 'Berhasil!',
-                            text: response.message,
+                            text: response.message || 'Data siswa berhasil dihapus.',
                             icon: 'success',
-                            timer: 1500,
+                            timer: 2000,
                             showConfirmButton: false
                         }).then(() => {
                             location.reload();
@@ -350,16 +440,61 @@ function deleteSiswa(id, nama) {
                     } else {
                         Swal.fire({
                             title: 'Gagal!',
-                            text: response.message,
+                            text: response && response.message ? response.message : 'Terjadi kesalahan tidak diketahui.',
                             icon: 'error'
                         });
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.log('Delete error details:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        responseText: xhr.responseText,
+                        error: error
+                    });
+                    
+                    let errorMessage = 'Terjadi kesalahan saat menghapus data.';
+                    
+                    // Handle different types of errors
+                    if (xhr.status === 200 && xhr.responseText) {
+                        // Status 200 but treated as error - likely invalid JSON
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            if (response && response.message) {
+                                errorMessage = response.message;
+                            } else {
+                                errorMessage = 'Response tidak valid dari server.';
+                            }
+                        } catch (e) {
+                            console.log('JSON parse error:', e);
+                            errorMessage = 'Server mengembalikan response yang tidak valid. Silakan periksa log server.';
+                        }
+                    } else if (xhr.status === 0) {
+                        errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                    } else if (xhr.status === 403) {
+                        errorMessage = 'Akses ditolak. Anda tidak memiliki izin untuk menghapus data.';
+                    } else if (xhr.status === 404) {
+                        errorMessage = 'Endpoint tidak ditemukan. Silakan hubungi administrator.';
+                    } else if (xhr.status >= 500) {
+                        errorMessage = 'Terjadi kesalahan server internal. Silakan coba lagi atau hubungi administrator.';
+                    } else if (status === 'timeout') {
+                        errorMessage = 'Request timeout. Silakan coba lagi.';
+                    } else if (xhr.responseText) {
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            if (response && response.message) {
+                                errorMessage = response.message;
+                            }
+                        } catch (e) {
+                            errorMessage = `Server error (${xhr.status}): ${xhr.statusText}`;
+                        }
+                    }
+                    
                     Swal.fire({
                         title: 'Error!',
-                        text: 'Terjadi kesalahan saat menghapus data.',
-                        icon: 'error'
+                        text: errorMessage,
+                        icon: 'error',
+                        footer: xhr.status ? `Status Code: ${xhr.status}` : ''
                     });
                 }
             });
@@ -413,6 +548,10 @@ function resetPassword(id, nama) {
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Toastr for notifications -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <style>
 /* Professional styling for student management page */
@@ -520,6 +659,22 @@ function resetPassword(id, nama) {
     color: #000000 !important;
 }
 
+/* Minimalist filter styling */
+.bg-light.rounded {
+    background-color: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+}
+
+.form-select-sm {
+    font-size: 0.875rem;
+    border: 1px solid #ced4da;
+}
+
+.form-select-sm:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .table-responsive {
@@ -534,5 +689,36 @@ function resetPassword(id, nama) {
     .card-title {
         font-size: 1.1rem;
     }
+    
+    .bg-light.rounded {
+        padding: 0.75rem !important;
+    }
+    
+    .col-md-2 {
+        flex: 0 0 auto;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
 }
+
+<script>
+// Configure Toastr
+toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "3000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+};
+</script>
 </style>

@@ -233,7 +233,7 @@ CREATE TABLE tb_nilai (
     kategori_nilai ENUM('tugas', 'ulangan_harian', 'uts', 'uas', 'praktek') NOT NULL,
     nilai DECIMAL(5,2) NOT NULL,
     keterangan TEXT,
-    tanggal_input DATE DEFAULT (CURRENT_DATE),
+    tanggal_input DATE DEFAULT NULL,
     id_guru INT NOT NULL, -- Guru yang menginput nilai
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -524,7 +524,23 @@ CREATE INDEX idx_nilai_siswa_mapel ON tb_nilai(id_siswa, id_mapel);
 CREATE INDEX idx_jadwal_kelas_hari ON tb_jadwal(id_kelas, hari);
 
 -- ================================================
--- 8. TRIGGERS FOR AUDIT LOG
+-- 8. TRIGGERS FOR AUTO DATE AND AUDIT LOG
+-- ================================================
+
+-- Trigger to set tanggal_input automatically
+DELIMITER $$
+CREATE TRIGGER tr_nilai_before_insert 
+BEFORE INSERT ON tb_nilai
+FOR EACH ROW
+BEGIN
+    IF NEW.tanggal_input IS NULL THEN
+        SET NEW.tanggal_input = CURDATE();
+    END IF;
+END$$
+DELIMITER ;
+
+-- ================================================
+-- 9. TRIGGERS FOR AUDIT LOG
 -- ================================================
 
 CREATE TABLE tb_audit_log (
@@ -532,8 +548,8 @@ CREATE TABLE tb_audit_log (
     table_name VARCHAR(50) NOT NULL,
     operation ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
     user_id INT,
-    old_values JSON,
-    new_values JSON,
+    old_values TEXT,
+    new_values TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

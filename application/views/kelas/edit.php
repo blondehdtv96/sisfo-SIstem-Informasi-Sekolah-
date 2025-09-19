@@ -83,7 +83,15 @@
                                            class="form-control <?php echo form_error('rombel') ? 'is-invalid' : ''; ?>" 
                                            id="rombel" 
                                            name="rombel" 
-                                           value="<?php echo $kelas->rombel; ?>"
+                                           value="<?php 
+                                           // Extract rombel from nama_kelas
+                                           $rombel_value = '';
+                                           if ($kelas->nama_kelas) {
+                                               $parts = explode(' ', $kelas->nama_kelas);
+                                               $rombel_value = end($parts);
+                                           }
+                                           echo $rombel_value;
+                                           ?>"
                                            placeholder="Contoh: A, B, 1, 2"
                                            maxlength="5"
                                            onkeyup="updatePreview()"

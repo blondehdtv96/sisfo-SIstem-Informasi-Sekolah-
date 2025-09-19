@@ -67,6 +67,11 @@ class Laporan extends CI_Controller
 
     public function cetak_siswa()
     {
+        // Clean output buffer before processing
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         if (!$this->input->post()) {
             redirect('laporan/siswa');
         }
@@ -84,6 +89,14 @@ class Laporan extends CI_Controller
 
     private function cetak_siswa_pdf($filter_kelas = null, $filter_jurusan = null)
     {
+        // Clean any output buffer to prevent PDF errors
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Disable error reporting for PDF generation
+        error_reporting(0);
+        
         $this->load->library('CFPDF');
         require_once APPPATH . '/libraries/fpdf.php';
         
@@ -155,11 +168,22 @@ class Laporan extends CI_Controller
         $pdf->Cell(200, 6, 'Dicetak pada: ' . date('d F Y, H:i:s'), 0, 0, 'L');
         $pdf->Cell(77, 6, 'Total: ' . count($siswa) . ' siswa', 0, 1, 'R');
 
+        // Clean output and send PDF
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $pdf->Output('I', 'Laporan_Siswa_' . date('Y-m-d') . '.pdf');
+        exit;
     }
 
     private function cetak_siswa_excel($filter_kelas = null, $filter_jurusan = null)
     {
+        // Clean any output buffer
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         // Get data with filters
         $where = array();
         if ($filter_kelas) $where['s.id_kelas'] = $filter_kelas;
@@ -227,6 +251,11 @@ class Laporan extends CI_Controller
 
     public function cetak_guru()
     {
+        // Clean output buffer before processing
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $format = $this->input->post('format');
         
         if ($format == 'pdf') {
@@ -238,6 +267,14 @@ class Laporan extends CI_Controller
 
     private function cetak_guru_pdf()
     {
+        // Clean any output buffer to prevent PDF errors
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Disable error reporting for PDF generation
+        error_reporting(0);
+        
         $this->load->library('CFPDF');
         require_once APPPATH . '/libraries/fpdf.php';
         
@@ -292,11 +329,22 @@ class Laporan extends CI_Controller
         $pdf->Cell(200, 6, 'Dicetak pada: ' . date('d F Y, H:i:s'), 0, 0, 'L');
         $pdf->Cell(77, 6, 'Total: ' . count($guru) . ' guru', 0, 1, 'R');
 
+        // Clean output and send PDF
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $pdf->Output('I', 'Laporan_Guru_' . date('Y-m-d') . '.pdf');
+        exit;
     }
 
     private function cetak_guru_excel()
     {
+        // Clean any output buffer
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $guru = $this->Guru_model->get_all();
 
         header('Content-Type: application/vnd.ms-excel');
@@ -393,6 +441,11 @@ class Laporan extends CI_Controller
 
     public function cetak_kelas()
     {
+        // Clean output buffer before processing
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $format = $this->input->post('format');
         
         if ($format == 'pdf') {
@@ -404,6 +457,14 @@ class Laporan extends CI_Controller
 
     private function cetak_kelas_pdf()
     {
+        // Clean any output buffer to prevent PDF errors
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Disable error reporting for PDF generation
+        error_reporting(0);
+        
         $this->load->library('CFPDF');
         require_once APPPATH . '/libraries/fpdf.php';
         
@@ -450,11 +511,22 @@ class Laporan extends CI_Controller
         $pdf->Cell(150, 6, 'Dicetak pada: ' . date('d F Y, H:i:s'), 0, 0, 'L');
         $pdf->Cell(40, 6, 'Total: ' . count($kelas) . ' kelas', 0, 1, 'R');
 
+        // Clean output and send PDF
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $pdf->Output('I', 'Laporan_Kelas_' . date('Y-m-d') . '.pdf');
+        exit;
     }
 
     private function cetak_kelas_excel()
     {
+        // Clean any output buffer
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $kelas = $this->Kelas_model->get_all();
 
         header('Content-Type: application/vnd.ms-excel');
@@ -507,6 +579,11 @@ class Laporan extends CI_Controller
 
     public function cetak_statistik()
     {
+        // Clean output buffer before processing
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $format = $this->input->post('format');
         
         if ($format == 'pdf') {
@@ -518,6 +595,14 @@ class Laporan extends CI_Controller
 
     private function cetak_statistik_pdf()
     {
+        // Clean any output buffer to prevent PDF errors
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Disable error reporting for PDF generation
+        error_reporting(0);
+        
         $this->load->library('CFPDF');
         require_once APPPATH . '/libraries/fpdf.php';
         
@@ -606,7 +691,68 @@ class Laporan extends CI_Controller
         $pdf->SetFont('Arial', '', 9);
         $pdf->Cell(190, 6, 'Dicetak pada: ' . date('d F Y, H:i:s'), 0, 1, 'C');
 
+        // Clean output and send PDF
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $pdf->Output('I', 'Laporan_Statistik_' . date('Y-m-d') . '.pdf');
+        exit;
+    }
+
+    private function cetak_statistik_excel()
+    {
+        // Clean any output buffer
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Get statistics data
+        $total_siswa = $this->Siswa_model->count_all();
+        $total_guru = $this->Guru_model->count_all();
+        $total_kelas = $this->Kelas_model->count_all();
+        $total_jurusan = $this->Jurusan_model->count_all();
+        
+        $siswa_by_gender = $this->Siswa_model->get_statistics_by_gender();
+        $guru_by_gender = $this->Guru_model->get_statistics_by_gender();
+        $siswa_by_jurusan = $this->Siswa_model->get_statistics_by_jurusan();
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="Laporan_Statistik_' . date('Y-m-d') . '.xls"');
+        header('Cache-Control: max-age=0');
+
+        echo '<table border="1">';
+        echo '<tr style="background-color: #f0f0f0; font-weight: bold;">';
+        echo '<td colspan="2">STATISTIK UMUM</td>';
+        echo '</tr>';
+        echo '<tr><td>Total Siswa</td><td>' . $total_siswa . '</td></tr>';
+        echo '<tr><td>Total Guru</td><td>' . $total_guru . '</td></tr>';
+        echo '<tr><td>Total Kelas</td><td>' . $total_kelas . '</td></tr>';
+        echo '<tr><td>Total Jurusan</td><td>' . $total_jurusan . '</td></tr>';
+        
+        echo '<tr style="background-color: #f0f0f0; font-weight: bold;">';
+        echo '<td colspan="2">STATISTIK SISWA BY GENDER</td>';
+        echo '</tr>';
+        foreach ($siswa_by_gender as $stat) {
+            echo '<tr><td>Siswa ' . $stat->jenis_kelamin . '</td><td>' . $stat->total . '</td></tr>';
+        }
+        
+        echo '<tr style="background-color: #f0f0f0; font-weight: bold;">';
+        echo '<td colspan="2">STATISTIK GURU BY GENDER</td>';
+        echo '</tr>';
+        foreach ($guru_by_gender as $stat) {
+            echo '<tr><td>Guru ' . $stat->jenis_kelamin . '</td><td>' . $stat->total . '</td></tr>';
+        }
+        
+        echo '<tr style="background-color: #f0f0f0; font-weight: bold;">';
+        echo '<td colspan="2">STATISTIK SISWA BY JURUSAN</td>';
+        echo '</tr>';
+        foreach ($siswa_by_jurusan as $stat) {
+            echo '<tr><td>' . $stat->nama_jurusan . '</td><td>' . $stat->total . '</td></tr>';
+        }
+        
+        echo '</table>';
+        exit;
     }
 }
 ?>

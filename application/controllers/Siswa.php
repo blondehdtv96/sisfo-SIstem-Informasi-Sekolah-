@@ -52,9 +52,11 @@ class Siswa extends CI_Controller
         $data['total_lulus'] = $this->Siswa_model->count_by_status('lulus');
         $data['total_pindah'] = $this->Siswa_model->count_by_status('pindah');
         
-        // Get filter options
-        $data['kelas_list'] = $this->Kelas_model->get_active();
-        $data['jurusan_list'] = $this->Jurusan_model->get_active();
+        // Get filter options for admin
+        if ($this->session->userdata('id_level_user') == 1) { // Only for admin
+            $data['kelas_list'] = $this->Kelas_model->get_active_with_details();
+            $data['jurusan_list'] = $this->Jurusan_model->get_active();
+        }
         
         $data['contents'] = $this->load->view('siswa/index', $data, TRUE);
         $this->load->view('template_new', $data);
@@ -255,38 +257,91 @@ class Siswa extends CI_Controller
 
     public function delete($id = null)
     {
+        // Disable any output buffering and clear any existing output
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Set headers for JSON response
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, must-revalidate');
+        
+        // Validate request method
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+            exit;
+        }
+        
+        // Log the request for debugging
+        log_message('info', 'Delete request received for student ID: ' . $id);
+        
         $user_level = $this->session->userdata('id_level_user');
         if ($user_level != 1) { // Only admin can delete students
+            log_message('info', 'Delete denied - insufficient privileges. User level: ' . $user_level);
             echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki akses untuk menghapus data siswa.']);
-            return;
+            exit;
         }
 
-        if (!$id) {
+        if (!$id || !is_numeric($id)) {
+            log_message('info', 'Delete denied - invalid ID: ' . $id);
             echo json_encode(['success' => false, 'message' => 'ID tidak valid.']);
-            return;
+            exit;
         }
 
-        $siswa = $this->Siswa_model->get_by_id($id);
-        if (!$siswa) {
-            echo json_encode(['success' => false, 'message' => 'Data siswa tidak ditemukan.']);
-            return;
-        }
-
-        // Check if student has grades
-        if ($this->Siswa_model->has_grades($id)) {
-            echo json_encode(['success' => false, 'message' => 'Siswa tidak dapat dihapus karena memiliki data nilai.']);
-            return;
-        }
-
-        if ($this->Siswa_model->delete($id)) {
-            // Delete photo if exists
-            if ($siswa->foto && file_exists('./assets/uploads/siswa/' . $siswa->foto)) {
-                unlink('./assets/uploads/siswa/' . $siswa->foto);
+        try {
+            $siswa = $this->Siswa_model->get_by_id($id);
+            if (!$siswa) {
+                log_message('info', 'Delete denied - student not found: ' . $id);
+                echo json_encode(['success' => false, 'message' => 'Data siswa tidak ditemukan.']);
+                exit;
             }
-            echo json_encode(['success' => true, 'message' => 'Data siswa berhasil dihapus.']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menghapus data siswa.']);
+
+            // Check if student has grades
+            $has_grades = $this->Siswa_model->has_grades($id);
+            log_message('info', 'Student has grades check: ' . ($has_grades ? 'true' : 'false'));
+            
+            if ($has_grades) {
+                echo json_encode(['success' => false, 'message' => 'Siswa tidak dapat dihapus karena memiliki data nilai. Silakan ubah status siswa menjadi "keluar" atau "pindah".']);
+                exit;
+            }
+
+            // Start transaction
+            $this->db->trans_start();
+            
+            // Delete student record
+            $delete_result = $this->Siswa_model->delete($id);
+            log_message('info', 'Delete result: ' . ($delete_result ? 'success' : 'failed'));
+            
+            if ($delete_result) {
+                // Delete photo if exists
+                if ($siswa->foto && file_exists('./assets/uploads/siswa/' . $siswa->foto)) {
+                    $photo_deleted = @unlink('./assets/uploads/siswa/' . $siswa->foto);
+                    log_message('info', 'Photo deletion: ' . ($photo_deleted ? 'success' : 'failed'));
+                }
+                
+                $this->db->trans_complete();
+                
+                if ($this->db->trans_status() === FALSE) {
+                    log_message('error', 'Transaction failed during student deletion');
+                    echo json_encode(['success' => false, 'message' => 'Gagal menghapus data siswa karena kesalahan database.']);
+                } else {
+                    log_message('info', 'Student deleted successfully: ' . $id);
+                    echo json_encode(['success' => true, 'message' => 'Data siswa "' . $siswa->nama_siswa . '" berhasil dihapus.']);
+                }
+            } else {
+                $this->db->trans_rollback();
+                log_message('error', 'Failed to delete student from database: ' . $id);
+                echo json_encode(['success' => false, 'message' => 'Gagal menghapus data siswa dari database.']);
+            }
+            
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            log_message('error', 'Exception during student deletion: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
+        
+        exit; // Ensure no additional output
     }
 
     public function detail($id = null)
@@ -313,32 +368,40 @@ class Siswa extends CI_Controller
 
     public function reset_password($id = null)
     {
+        // Set content type for JSON response
+        $this->output->set_content_type('application/json');
+        
         $user_level = $this->session->userdata('id_level_user');
         if (!in_array($user_level, [1, 2])) {
             echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki akses untuk reset password.']);
             return;
         }
 
-        if (!$id) {
+        if (!$id || !is_numeric($id)) {
             echo json_encode(['success' => false, 'message' => 'ID tidak valid.']);
             return;
         }
 
-        $siswa = $this->Siswa_model->get_by_id($id);
-        if (!$siswa) {
-            echo json_encode(['success' => false, 'message' => 'Data siswa tidak ditemukan.']);
-            return;
-        }
+        try {
+            $siswa = $this->Siswa_model->get_by_id($id);
+            if (!$siswa) {
+                echo json_encode(['success' => false, 'message' => 'Data siswa tidak ditemukan.']);
+                return;
+            }
 
-        $new_password = $siswa->nisn; // Reset to NISN
-        $update_data = array(
-            'password' => password_hash($new_password, PASSWORD_DEFAULT)
-        );
+            $new_password = $siswa->nisn; // Reset to NISN
+            $update_data = array(
+                'password' => password_hash($new_password, PASSWORD_DEFAULT)
+            );
 
-        if ($this->Siswa_model->update($id, $update_data)) {
-            echo json_encode(['success' => true, 'message' => 'Password berhasil direset ke NISN: ' . $new_password]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal reset password.']);
+            if ($this->Siswa_model->update($id, $update_data)) {
+                echo json_encode(['success' => true, 'message' => 'Password berhasil direset ke NISN: ' . $new_password]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Gagal reset password.']);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Error resetting password: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem. Silakan coba lagi.']);
         }
     }
 
@@ -362,6 +425,116 @@ class Siswa extends CI_Controller
             return FALSE;
         }
         return TRUE;
+    }
+
+
+
+    public function test_delete()
+    {
+        // Simple test endpoint to check if JSON response works
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Test endpoint working',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'user_level' => $this->session->userdata('id_level_user')
+        ]);
+        exit;
+    }
+
+    public function filter_data()
+    {
+        header('Content-Type: application/json');
+        
+        $kelas = $this->input->post('kelas');
+        $jurusan = $this->input->post('jurusan');
+        $status = $this->input->post('status');
+        
+        // Build where conditions
+        $where = array();
+        if (!empty($kelas)) {
+            $where['k.nama_kelas'] = $kelas;
+        }
+        if (!empty($jurusan)) {
+            $where['j.nama_jurusan'] = $jurusan;
+        }
+        if (!empty($status)) {
+            $where['s.status'] = strtolower($status);
+        }
+        
+        try {
+            $siswa = $this->Siswa_model->get_all_with_details_filtered($where);
+            
+            $data = array();
+            $no = 1;
+            foreach ($siswa as $s) {
+                $foto = '';
+                if ($s->foto && file_exists('./assets/uploads/siswa/' . $s->foto)) {
+                    $foto = '<img src="' . base_url('assets/uploads/siswa/' . $s->foto) . '" alt="Foto ' . $s->nama_siswa . '" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #dee2e6;">';
+                } else {
+                    $foto = '<div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px; border: 2px solid #dee2e6;"><i class="fas fa-user"></i></div>';
+                }
+                
+                $nisn_nis = '<strong class="text-dark">' . $s->nisn . '</strong><br><small class="text-muted">' . ($s->nis ?: '-') . '</small>';
+                
+                $nama = '<a href="' . site_url('siswa/detail/' . $s->id_siswa) . '" class="text-decoration-none text-dark fw-medium">' . $s->nama_siswa . '</a>';
+                
+                $kelas_info = '<span class="badge bg-info">' . ($s->nama_kelas ?: 'Belum Ada Kelas') . '</span><br><small class="text-muted">' . $s->nama_jurusan . '</small>';
+                
+                $jk = $s->jenis_kelamin == 'L' ? '<span class="badge bg-primary">L</span>' : '<span class="badge bg-danger">P</span>';
+                
+                $status_class = '';
+                switch($s->status) {
+                    case 'aktif': $status_class = 'bg-success'; break;
+                    case 'lulus': $status_class = 'bg-warning'; break;
+                    case 'pindah': $status_class = 'bg-info'; break;
+                    case 'keluar': $status_class = 'bg-danger'; break;
+                    default: $status_class = 'bg-secondary';
+                }
+                $status_badge = '<span class="badge ' . $status_class . '">' . ucfirst($s->status) . '</span>';
+                
+                $tanggal = $s->tanggal_masuk ? date('d/m/Y', strtotime($s->tanggal_masuk)) : '-';
+                
+                $aksi = '';
+                if (in_array($this->session->userdata('id_level_user'), [1, 2])) {
+                    $aksi = '<div class="btn-group btn-group-sm" role="group">';
+                    $aksi .= '<a href="' . site_url('siswa/detail/' . $s->id_siswa) . '" class="btn btn-outline-info" title="Detail"><i class="fas fa-eye"></i></a>';
+                    $aksi .= '<a href="' . site_url('siswa/edit/' . $s->id_siswa) . '" class="btn btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>';
+                    $aksi .= '<button type="button" class="btn btn-outline-secondary" title="Reset Password" onclick="resetPassword(' . $s->id_siswa . ', \'' . addslashes($s->nama_siswa) . '\')"><i class="fas fa-key"></i></button>';
+                    if ($this->session->userdata('id_level_user') == 1) {
+                        $aksi .= '<button type="button" class="btn btn-outline-danger" title="Hapus" onclick="deleteSiswa(' . $s->id_siswa . ', \'' . addslashes($s->nama_siswa) . '\')"><i class="fas fa-trash"></i></button>';
+                    }
+                    $aksi .= '</div>';
+                }
+                
+                $data[] = array(
+                    $no++,
+                    $foto,
+                    $nisn_nis,
+                    $nama,
+                    $kelas_info,
+                    $jk,
+                    $status_badge,
+                    $tanggal,
+                    $aksi
+                );
+            }
+            
+            echo json_encode(array(
+                'success' => true,
+                'data' => $data,
+                'recordsTotal' => count($data),
+                'recordsFiltered' => count($data)
+            ));
+            
+        } catch (Exception $e) {
+            echo json_encode(array(
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ));
+        }
+        
+        exit;
     }
 
     public function export_excel()

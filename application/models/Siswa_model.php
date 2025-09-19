@@ -157,9 +157,15 @@ class Siswa_model extends CI_Model
 
     public function has_grades($id_siswa)
     {
-        $this->db->from('tb_nilai');
-        $this->db->where('id_siswa', $id_siswa);
-        return $this->db->count_all_results() > 0;
+        try {
+            $this->db->from('tb_nilai');
+            $this->db->where('id_siswa', $id_siswa);
+            $count = $this->db->count_all_results();
+            return $count > 0;
+        } catch (Exception $e) {
+            log_message('error', 'Error checking student grades: ' . $e->getMessage());
+            return false; // If there's an error, allow deletion (safer approach)
+        }
     }
 
     public function search($keyword)
@@ -259,7 +265,6 @@ class Siswa_model extends CI_Model
             $this->db->where($where);
         }
         
-        $this->db->where('s.deleted_at IS NULL');
         $this->db->order_by('j.nama_jurusan', 'ASC');
         $this->db->order_by('k.nama_kelas', 'ASC');
         $this->db->order_by('s.nama_siswa', 'ASC');
@@ -273,7 +278,6 @@ class Siswa_model extends CI_Model
     {
         $this->db->select('jenis_kelamin, COUNT(*) as total');
         $this->db->from($this->table);
-        $this->db->where('deleted_at IS NULL');
         $this->db->group_by('jenis_kelamin');
         $this->db->order_by('jenis_kelamin', 'ASC');
         return $this->db->get()->result();
@@ -288,7 +292,6 @@ class Siswa_model extends CI_Model
         $this->db->from($this->table . ' s');
         $this->db->join('tb_kelas k', 's.id_kelas = k.id_kelas', 'left');
         $this->db->join('tb_jurusan j', 'k.id_jurusan = j.id_jurusan', 'left');
-        $this->db->where('s.deleted_at IS NULL');
         $this->db->group_by('j.id_jurusan');
         $this->db->order_by('total', 'DESC');
         return $this->db->get()->result();

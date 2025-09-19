@@ -116,7 +116,15 @@
                                                 </td>
                                                 <td><?php echo $k->nama_jurusan ? $k->nama_jurusan : '<em class="text-muted">-</em>'; ?></td>
                                                 <td>
-                                                    <span class="badge bg-secondary"><?php echo $k->rombel ? $k->rombel : '-'; ?></span>
+                                                    <?php 
+                                                    // Extract rombel from nama_kelas (e.g., "X RPL 1" -> "1")
+                                                    $rombel = '-';
+                                                    if ($k->nama_kelas) {
+                                                        $parts = explode(' ', $k->nama_kelas);
+                                                        $rombel = end($parts); // Get the last part
+                                                    }
+                                                    ?>
+                                                    <span class="badge bg-secondary"><?php echo $rombel; ?></span>
                                                 </td>
                                                 <td><?php echo $k->kapasitas ? $k->kapasitas . ' siswa' : '<em class="text-muted">-</em>'; ?></td>
                                                 <td>

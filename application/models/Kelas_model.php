@@ -28,7 +28,7 @@ class Kelas_model extends CI_Model
         $this->db->join('tb_tahun_akademik ta', 'ta.status = "aktif"', 'left');
         $this->db->order_by('t.nama_tingkatan', 'ASC');
         $this->db->order_by('j.nama_jurusan', 'ASC');
-        $this->db->order_by('k.rombel', 'ASC');
+        $this->db->order_by('k.nama_kelas', 'ASC');
         return $this->db->get()->result();
     }
 
@@ -51,7 +51,7 @@ class Kelas_model extends CI_Model
         $this->db->where('k.status', 'aktif');
         $this->db->order_by('t.nama_tingkatan', 'ASC');
         $this->db->order_by('j.nama_jurusan', 'ASC');
-        $this->db->order_by('k.rombel', 'ASC');
+        $this->db->order_by('k.nama_kelas', 'ASC');
         return $this->db->get()->result();
     }
 
@@ -140,21 +140,20 @@ class Kelas_model extends CI_Model
         $this->db->group_start();
         $this->db->like('k.nama_kelas', $keyword);
         $this->db->or_like('k.kode_kelas', $keyword);
-        $this->db->or_like('k.rombel', $keyword);
         $this->db->or_like('t.nama_tingkatan', $keyword);
         $this->db->or_like('j.nama_jurusan', $keyword);
         $this->db->group_end();
         $this->db->order_by('t.nama_tingkatan', 'ASC');
         $this->db->order_by('j.nama_jurusan', 'ASC');
-        $this->db->order_by('k.rombel', 'ASC');
+        $this->db->order_by('k.nama_kelas', 'ASC');
         return $this->db->get()->result();
     }
     
-    public function check_duplicate_class($id_tingkatan, $id_jurusan, $rombel, $exclude_id = null)
+    public function check_duplicate_class($id_tingkatan, $id_jurusan, $nama_kelas, $exclude_id = null)
     {
         $this->db->where('id_tingkatan', $id_tingkatan);
         $this->db->where('id_jurusan', $id_jurusan);
-        $this->db->where('rombel', $rombel);
+        $this->db->where('nama_kelas', $nama_kelas);
         
         if ($exclude_id) {
             $this->db->where('id_kelas !=', $exclude_id);

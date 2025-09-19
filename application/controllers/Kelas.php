@@ -71,7 +71,7 @@ class Kelas extends CI_Controller
                 $nama_kelas = $tingkatan->nama_tingkatan . ' ' . $jurusan->nama_jurusan . ' ' . $rombel;
                 
                 // Check if this combination already exists
-                if ($this->Kelas_model->check_duplicate_class($this->input->post('id_tingkatan'), $this->input->post('id_jurusan'), $rombel)) {
+                if ($this->Kelas_model->check_duplicate_class($this->input->post('id_tingkatan'), $this->input->post('id_jurusan'), $nama_kelas)) {
                     $this->session->set_flashdata('error', 'Kelas dengan kombinasi tingkatan, jurusan, dan rombel ini sudah ada.');
                 } else {
                     $data = array(
@@ -79,7 +79,6 @@ class Kelas extends CI_Controller
                         'nama_kelas' => $nama_kelas,
                         'id_tingkatan' => $this->input->post('id_tingkatan'),
                         'id_jurusan' => $this->input->post('id_jurusan'),
-                        'rombel' => $rombel,
                         'kapasitas' => $this->input->post('kapasitas'),
                         'status' => $this->input->post('status')
                     );
@@ -144,7 +143,7 @@ class Kelas extends CI_Controller
                 $nama_kelas = $tingkatan->nama_tingkatan . ' ' . $jurusan->nama_jurusan . ' ' . $rombel;
                 
                 // Check if this combination already exists (excluding current record)
-                if ($this->Kelas_model->check_duplicate_class($this->input->post('id_tingkatan'), $this->input->post('id_jurusan'), $rombel, $id)) {
+                if ($this->Kelas_model->check_duplicate_class($this->input->post('id_tingkatan'), $this->input->post('id_jurusan'), $nama_kelas, $id)) {
                     $this->session->set_flashdata('error', 'Kelas dengan kombinasi tingkatan, jurusan, dan rombel ini sudah ada.');
                 } else {
                     $update_data = array(
@@ -152,7 +151,6 @@ class Kelas extends CI_Controller
                         'nama_kelas' => $nama_kelas,
                         'id_tingkatan' => $this->input->post('id_tingkatan'),
                         'id_jurusan' => $this->input->post('id_jurusan'),
-                        'rombel' => $rombel,
                         'kapasitas' => $this->input->post('kapasitas'),
                         'status' => $this->input->post('status')
                     );
